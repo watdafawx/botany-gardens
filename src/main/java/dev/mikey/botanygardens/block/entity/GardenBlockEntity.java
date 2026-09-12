@@ -365,8 +365,15 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         if (!level.isClientSide) {
             be.energyUsage = 0;
         }
+        // Computed once per garden-tick, not once per cell - every cell auto-harvests into this same
+        // shared bank, so if it's already full none of the 9 can deliver anything this tick regardless
+        // of pot kind. Skipping their whole tick (soil/crop/FE) rather than growing-then-discarding
+        // holds each cell at "ready to harvest" instead of wasting the cycle, and avoids paying for a
+        // crop tick + recipe lookup on cells that can't produce anything - matters once several dozen
+        // Garden Pots are all ticking at once.
+        final boolean hasRoom = be.hasFreeOutputSlot();
         for (int i = 0; i < GRID_SIZE; i++) {
-            tickCell(be, i);
+            tickCell(be, i, hasRoom);
         }
         if (be.hasOutput && level instanceof ServerLevel serverLevel) {
             be.exportCooldown.tickDown(level);
@@ -389,10 +396,17 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         }
     }
 
-    private static void tickCell(GardenBlockEntity owner, int index) {
+    private static void tickCell(GardenBlockEntity owner, int index, boolean hasRoom) {
         final GardenCell cell = owner.getCell(index);
         final Level level = owner.getLevel();
         if (level == null || cell.isEmpty() || !cell.enabled) {
+            return;
+        }
+        // Shared output bank is full - every cell delivers there regardless of pot kind, so there's
+        // nothing for any of them to do. Holds growth (and, for Power-Pot cells, the FE draw) right
+        // where it is instead of running the cycle to completion only to discard it; see the tick()
+        // call site for why this is checked once per garden rather than per cell.
+        if (!hasRoom) {
             return;
         }
 
@@ -470,10 +484,13 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
                             }
                             level.gameEvent(GameEvent.BLOCK_CHANGE, owner.worldPosition, GameEvent.Context.of(owner.getBlockState()));
                         }
-                        // Output bank was full (checked server-side only, but growthTime resets the
-                        // same on both sides either way - see the client/server tick note on
-                        // GardenBlockEntity#tick): the cycle's yield is simply never rolled, so
-                        // nothing is generated only to be discarded. It just regrows and tries again.
+                        // Only reachable when the bank still had room when tick() snapshotted hasRoom
+                        // but an earlier cell in this same loop just filled the last slot (checked
+                        // server-side only, but growthTime resets the same on both sides either way -
+                        // see the client/server tick note on GardenBlockEntity#tick): the cycle's yield
+                        // is simply never rolled, so nothing is generated only to be discarded. The
+                        // ordinary "bank was already full" case is caught before this method is even
+                        // called - see tick()'s hasRoom.
                         cell.growthTime.reset();
                     }
                 }
