@@ -13,7 +13,12 @@ its own output slots, mirroring
 
 Requires BotanyPots + Bookshelf. Botany Pots Tiers, PowerPots, Dim Storage, and Jade are all optional -
 a cell can only be set to a pot-kind from a mod that's actually installed, and Jade (if present) shows
-a hover tooltip with growing-cell count and energy.
+a hover tooltip with growing-cell count, each cell's seed name/progress, and energy (buffer + FE/t
+currently being drawn). The GUI shows the same energy/FE-per-tick pair under the title.
+
+Balance knobs (energy capacity/max-receive/sync-period, export period, all 4 upgrade modifiers, Fortune's
+cap) live in `config/botanygardens-common.toml`, generated on first run - see
+[`ModConfig`](src/main/java/dev/mikey/botanygardens/config/ModConfig.java).
 
 ## Architecture (why this isn't just 9 real pots in one block)
 
@@ -51,8 +56,18 @@ Upgrades are a separate, always-available system, not PowerPots-specific: 4 shar
 [`GardenUpgradeItem`](src/main/java/dev/mikey/botanygardens/upgrade/GardenUpgradeItem.java)/
 [`GardenUpgradeSupport`](src/main/java/dev/mikey/botanygardens/upgrade/GardenUpgradeSupport.java)) apply
 to every cell regardless of pot kind; only Energy's cost reduction actually matters on a
-Power-Pot-kind cell. Fortune stacks to 3 copies for a stacking bonus-roll chance (0.15/copy, capped
-at 0.45), mirroring `PowerPotBlockEntity#getFortuneChance` exactly.
+Power-Pot-kind cell. Fortune stacks to 3 copies for a stacking bonus-roll chance (0.15/copy by
+default, capped at 0.45), mirroring `PowerPotBlockEntity#getFortuneChance`; both numbers are
+config-tunable (`GardenUpgradeType#getConfiguredModifier` reads them live, not baked in at item
+registration).
+
+Two departures from what the decompiled parent mods actually do, both about not wasting FE/CPU on
+cells that can't produce anything: a Power-Pot-kind cell only draws energy while it has both soil and
+seed (real `PowerPotBlockEntity#tickPot` draws unconditionally, even empty); and every cell's whole
+tick (soil/crop/FE) is skipped once the shared output bank is full, holding growth at "ready to
+harvest" instead of completing the cycle and discarding it (real `BotanyPotBlockEntity#tickPot`
+regrows-and-discards forever regardless of storage space) - checked once per garden-tick, not once per
+cell, since all 9 cells share the one output bank.
 
 ## Building
 
@@ -67,11 +82,12 @@ toolchain if this one doesn't have its own.
 
 Done: core growth/harvest loop, energy port + PowerPots tier compat, Botany Pots Tiers compat
 (works for free - see Architecture), the grid GUI (per-cell enable/disable toggle with check/X mark,
-growth progress bars, a vertical upgrade-slot column with its own stat readout, FE/Dim-frequency
-status lines), the in-world renderer (real pot shape/model, growing cells clustered as mini copies of
-whatever pot-kind item was inserted), the Dimensional Garden Pot variant (own texture, own renderer
-registration, frequency binding via right-click), Jade integration, loot tables, crafting recipes,
-and the mod's own 4-item global upgrade system (Speed/Output/Energy/Fortune, generated icons).
+growth progress bars, a vertical upgrade-slot column with its own stat readout, FE/FE-per-tick/Dim-
+frequency status lines), the in-world renderer (real pot shape/model, growing cells clustered as mini
+copies of whatever pot-kind item was inserted), the Dimensional Garden Pot variant (own texture, own
+renderer registration, frequency binding via right-click), Jade integration (cell seed names/progress,
+energy + FE/t), loot tables, crafting recipes, the mod's own 4-item global upgrade system
+(Speed/Output/Energy/Fortune, generated icons), and a common config for every tunable balance number.
 Playtested extensively in the dev client, not just compiled - including hunting down a real
 client-vs-server desync bug where the block entity's shared ticker ran unguarded on both sides and
 the client kept re-draining its own unsynced copy of the energy buffer (see `GardenBlockEntity#tickCell`'s
