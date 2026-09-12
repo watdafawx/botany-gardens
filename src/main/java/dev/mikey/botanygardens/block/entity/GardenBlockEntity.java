@@ -4,6 +4,7 @@ import dev.mikey.botanygardens.BotanyGardens;
 import dev.mikey.botanygardens.block.GardenHelpers;
 import dev.mikey.botanygardens.block.context.CellContext;
 import dev.mikey.botanygardens.compat.powerpots.PowerPotCellSupport;
+import dev.mikey.botanygardens.config.ModConfig;
 import dev.mikey.botanygardens.energy.GardenEnergyStorage;
 import dev.mikey.botanygardens.init.ModBlockEntities;
 import dev.mikey.botanygardens.upgrade.GardenUpgradeSupport;
@@ -73,19 +74,20 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
     public static final int UPGRADE_SLOTS = 4;
     public static final int CONTAINER_SIZE = CELL_SLOTS + OUTPUT_SLOTS + UPGRADE_SLOTS;
     public static final Component DEFAULT_NAME = Component.translatable("container.botanygardens.garden");
-    /** Ticks between export attempts once there's something to move - matches vanilla hopper's own cadence. */
-    public static final float EXPORT_PERIOD = 8f;
+    /** Ticks between export attempts once there's something to move - matches vanilla hopper's own
+     * cadence by default; tunable via {@link ModConfig#EXPORT_PERIOD}. */
+    public static float exportPeriod() {
+        return ModConfig.EXPORT_PERIOD.get();
+    }
     /** How often the client's copy of {@link #energy} gets refreshed. A cable's {@code receiveEnergy}
      * call only ever touches the server-side capability object directly - it never calls
      * {@link #markUpdated()}, so without a periodic nudge the client's display (GUI, Jade) just sits
      * frozen at whatever it last happened to sync to (0, if nothing else triggered a sync since the
-     * block was placed) no matter how charged the real server-side buffer gets. */
-    public static final float ENERGY_SYNC_PERIOD = 10f;
-
-    // 9 cells' worth of potential Power Pots sharing one buffer - generous enough that a full grid of
-    // top-tier Power Pots doesn't starve, cheap to raise later via config if that turns out wrong.
-    public static final int ENERGY_CAPACITY = 100_000;
-    public static final int ENERGY_MAX_RECEIVE = 2_000;
+     * block was placed) no matter how charged the real server-side buffer gets. Tunable via
+     * {@link ModConfig#ENERGY_SYNC_PERIOD}. */
+    public static float energySyncPeriod() {
+        return ModConfig.ENERGY_SYNC_PERIOD.get();
+    }
 
     private final GardenCell[] cells = new GardenCell[GRID_SIZE];
     // One reused context per cell instead of allocating a fresh one on every tick/render call - with
@@ -98,7 +100,11 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
     /** Speed/Output/Energy/Fortune, in that fixed order - our own items, always placeable regardless
      * of what else is installed (see {@code GardenUpgradeSupport#isUpgradeForSlot}). */
     public NonNullList<ItemStack> upgrades = NonNullList.withSize(UPGRADE_SLOTS, ItemStack.EMPTY);
-    public final GardenEnergyStorage energy = new GardenEnergyStorage(ENERGY_CAPACITY, ENERGY_MAX_RECEIVE);
+    public final GardenEnergyStorage energy = new GardenEnergyStorage(ModConfig.ENERGY_CAPACITY.get(), ModConfig.ENERGY_MAX_RECEIVE.get());
+    /** FE drawn by Power-Pot-kind cells on the last server tick - synced to the client the same way
+     * (and on the same cadence) as {@link #energy} itself, for the GUI/Jade FE-per-tick readout. */
+    public int energyUsage = 0;
+    private int lastSyncedEnergyUsage = -1;
     // Set whenever a harvest lands in `output`; cleared once it's fully drained. Lets tick() skip the
     // export scan entirely on the common tick where there's nothing to move.
     protected boolean hasOutput = false;
@@ -314,8 +320,8 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
      *
      * <p>Only called from {@link #tick} when {@link #hasOutput} is set and the cooldown's up (see
      * there) - a garden with nothing harvested yet costs nothing here, and one that does export pays
-     * for the "below" blockstate lookup + a 27-slot scan once every {@value #EXPORT_PERIOD} ticks
-     * (vanilla hopper cadence) instead of every single tick.
+     * for the "below" blockstate lookup + a 27-slot scan once every {@link ModConfig#EXPORT_PERIOD}
+     * ticks (vanilla hopper cadence by default) instead of every single tick.
      */
     protected void exportOutput(ServerLevel level) {
         final BlockPos below = this.worldPosition.below();
@@ -356,6 +362,9 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         if (be.isRemoved()) {
             return;
         }
+        if (!level.isClientSide) {
+            be.energyUsage = 0;
+        }
         for (int i = 0; i < GRID_SIZE; i++) {
             tickCell(be, i);
         }
@@ -363,16 +372,17 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
             be.exportCooldown.tickDown(level);
             if (be.exportCooldown.getTicks() <= 0) {
                 be.exportOutput(serverLevel);
-                be.exportCooldown.setTicks(EXPORT_PERIOD);
+                be.exportCooldown.setTicks(exportPeriod());
             }
         }
         if (level instanceof ServerLevel) {
             be.energySyncCooldown.tickDown(level);
             if (be.energySyncCooldown.getTicks() <= 0) {
-                be.energySyncCooldown.setTicks(ENERGY_SYNC_PERIOD);
+                be.energySyncCooldown.setTicks(energySyncPeriod());
                 final int stored = be.energy.getEnergyStored();
-                if (stored != be.lastSyncedEnergy) {
+                if (stored != be.lastSyncedEnergy || be.energyUsage != be.lastSyncedEnergyUsage) {
                     be.lastSyncedEnergy = stored;
+                    be.lastSyncedEnergyUsage = be.energyUsage;
                     be.markUpdated();
                 }
             }
@@ -399,10 +409,14 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         // tick, all the way to near-0, far faster than the periodic resync from the real (healthy,
         // cable-fed) server value could correct it - so the GUI/Jade display spent most of its time
         // showing that self-inflicted near-empty number instead of the true one.
-        if (!level.isClientSide && BotanyGardens.isPowerPotsLoaded() && PowerPotCellSupport.isPowerPot(cell.potKind) && !PowerPotCellSupport.tryConsumeEnergy(owner.energy, cell.potKind, owner.upgrades)) {
-            // Not enough FE in the shared buffer this tick - mirrors PowerPotBlockEntity#tickPot's own
-            // early return when its (real, per-block) energy buffer can't cover the tier's per-tick cost.
-            return;
+        if (!level.isClientSide && BotanyGardens.isPowerPotsLoaded() && PowerPotCellSupport.isPowerPot(cell.potKind)) {
+            final int consumed = PowerPotCellSupport.tryConsumeEnergy(owner.energy, cell.potKind, owner.upgrades);
+            if (consumed < 0) {
+                // Not enough FE in the shared buffer this tick - mirrors PowerPotBlockEntity#tickPot's own
+                // early return when its (real, per-block) energy buffer can't cover the tier's per-tick cost.
+                return;
+            }
+            owner.energyUsage += consumed;
         }
 
         final CellContext context = owner.getContext(index);
@@ -479,6 +493,7 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         ContainerHelper.saveAllItems(upgradesTag, this.upgrades, registries);
         tag.put("Upgrades", upgradesTag);
         tag.put("Energy", this.energy.serializeNBT(registries));
+        tag.putInt("EnergyUsage", this.energyUsage);
     }
 
     @Override
@@ -507,6 +522,7 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         if (tag.contains("Energy")) {
             this.energy.deserializeNBT(registries, tag.get("Energy"));
         }
+        this.energyUsage = tag.getInt("EnergyUsage");
     }
 
     @Override

@@ -52,14 +52,16 @@ public class PowerPotCellSupport {
      * energy banked before it'll draw and allow growth this tick. {@code upgrades} is the Garden
      * Pot's shared upgrade bank - its Energy Upgrade reduces the draw the same way a real Power Pot's
      * own energy-upgrade would.
+     *
+     * @return FE actually drawn this tick, or -1 if the buffer couldn't cover the tier's per-tick cost.
      */
-    public static boolean tryConsumeEnergy(GardenEnergyStorage energy, ItemStack potKindStack, List<ItemStack> upgrades) {
+    public static int tryConsumeEnergy(GardenEnergyStorage energy, ItemStack potKindStack, List<ItemStack> upgrades) {
         final int cost = Math.round(getTier(potKindStack).powerEachTick() * GardenUpgradeSupport.getEnergyModifier(upgrades));
         if (cost <= 0 || energy.getEnergyStored() >= cost) {
             energy.removeEnergy(cost);
-            return true;
+            return cost;
         }
-        return false;
+        return -1;
     }
 
     /** The Power Pot's own tier speed bonus - separate from (and stacks with) the Garden Pot's shared

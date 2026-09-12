@@ -68,14 +68,16 @@ public class GardenJadePlugin implements IWailaPlugin, IBlockComponentProvider {
             if (cell.isEmpty() || cell.seed.isEmpty()) {
                 continue;
             }
-            final Component label = cell.enabled
+            final Component progress = cell.enabled
                     ? Component.literal(Math.round(pot.getGrowthProgress(i) * 100f) + "%")
                     : Component.translatable("botanygardens.jade.paused").withStyle(ChatFormatting.RED);
+            final Component label = Component.empty().append(cell.seed.getHoverName()).append(" ").append(progress);
             tooltip.add(List.of(helper.smallItem(cell.seed), helper.text(label)));
         }
 
         if (pot.energy.getMaxEnergyStored() > 0) {
             tooltip.add(Component.translatable("botanygardens.jade.energy", pot.energy.getEnergyStored(), pot.energy.getMaxEnergyStored()));
+            tooltip.add(Component.translatable("botanygardens.jade.energy_usage", pot.energyUsage));
         }
 
         // isDimStorageLoaded() must short-circuit before the instanceof - DimGardenBlockEntity

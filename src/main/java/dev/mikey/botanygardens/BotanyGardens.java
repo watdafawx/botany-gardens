@@ -1,6 +1,7 @@
 package dev.mikey.botanygardens;
 
 import dev.mikey.botanygardens.compat.dimstorage.DimStorageCompat;
+import dev.mikey.botanygardens.config.ModConfig;
 import dev.mikey.botanygardens.init.ModBlockEntities;
 import dev.mikey.botanygardens.init.ModBlocks;
 import dev.mikey.botanygardens.init.ModCreativeTab;
@@ -10,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
@@ -51,6 +53,7 @@ public class BotanyGardens {
         ModCreativeTab.TABS.register(modBus);
         modBus.addListener(BotanyGardens::onRegisterCapabilities);
         DimStorageCompat.init(modBus);
+        container.registerConfig(Type.COMMON, ModConfig.SPEC);
     }
 
     private static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {

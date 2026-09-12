@@ -57,9 +57,9 @@ public class GardenMenu extends AbstractContainerMenu {
     public static final int SLOT = 18;
     public static final int CLUSTER_GAP = 6;
     public static final int GRID_LEFT = 8;
-    // Room for up to 3 stacked status lines under the title (energy, and - Dimensional Garden Pot
-    // only - the bound frequency) before the pot grid starts.
-    public static final int GRID_TOP = 36;
+    // Room for up to 3 stacked status lines under the title (energy, energy-usage-per-tick, and -
+    // Dimensional Garden Pot only - the bound frequency) before the pot grid starts.
+    public static final int GRID_TOP = 46;
     public static final int OUTPUT_COLUMNS = 9;
     // +1 slot-width per cluster for the enable/disable toggle button (not a real item slot).
     public static final int CLUSTER_WIDTH = (GardenBlockEntity.CLUSTER_SLOTS + 1) * SLOT;

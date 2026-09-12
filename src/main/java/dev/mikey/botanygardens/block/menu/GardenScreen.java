@@ -153,6 +153,9 @@ public class GardenScreen extends AbstractContainerScreen<GardenMenu> {
             graphics.drawString(this.font, Component.translatable("botanygardens.gui.energy", pot.energy.getEnergyStored(), pot.energy.getMaxEnergyStored()),
                     GardenMenu.GRID_LEFT, statusY, LABEL_COLOR, false);
             statusY += 10;
+            graphics.drawString(this.font, Component.translatable("botanygardens.gui.energy_usage", pot.energyUsage),
+                    GardenMenu.GRID_LEFT, statusY, LABEL_COLOR, false);
+            statusY += 10;
         }
         // Dimensional Garden Pot only - which Dim Storage frequency this pot's output is bound to.
         if (BotanyGardens.isDimStorageLoaded() && pot instanceof DimGardenBlockEntity dimPot) {

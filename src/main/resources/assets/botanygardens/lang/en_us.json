@@ -24,8 +24,10 @@
   "botanygardens.jade.cells": "Growing: %s/%s",
   "botanygardens.jade.paused": "paused",
   "botanygardens.jade.energy": "Energy: %s / %s FE",
+  "botanygardens.jade.energy_usage": "Usage: %s FE/t",
   "botanygardens.jade.frequency": "Dim Frequency: %s",
   "botanygardens.gui.frequency": "Freq: %s",
   "botanygardens.gui.energy": "%s / %s FE",
+  "botanygardens.gui.energy_usage": "%s FE/t",
   "config.jade.plugin_botanygardens.cells": "Botany Gardens: Growing Cells"
 }

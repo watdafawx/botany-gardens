@@ -14,14 +14,14 @@ public class ModItems {
     public static final DeferredItem<BlockItem> GARDEN = ITEMS.registerSimpleBlockItem(ModBlocks.GARDEN);
 
     // The Garden Pot's own 4 shared upgrades - apply to every cell regardless of pot kind, unlike
-    // PowerPots' own upgrade items (Power-Pot-kind cells only). Values mirror what PowerPots' own
-    // upgrades did, so nothing changes numerically for anyone already using them.
+    // PowerPots' own upgrade items (Power-Pot-kind cells only). Modifier values live in ModConfig
+    // (see GardenUpgradeType#getConfiguredModifier), not here.
     public static final DeferredItem<GardenUpgradeItem> SPEED_UPGRADE =
-            ITEMS.register("speed_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.SPEED, 1.5f, 1));
+            ITEMS.register("speed_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.SPEED, 1));
     public static final DeferredItem<GardenUpgradeItem> OUTPUT_UPGRADE =
-            ITEMS.register("output_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.YIELD, 2.0f, 1));
+            ITEMS.register("output_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.YIELD, 1));
     public static final DeferredItem<GardenUpgradeItem> ENERGY_UPGRADE =
-            ITEMS.register("energy_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.ENERGY, 0.75f, 1));
+            ITEMS.register("energy_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.ENERGY, 1));
     public static final DeferredItem<GardenUpgradeItem> FORTUNE_UPGRADE =
-            ITEMS.register("fortune_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.FORTUNE, 0.15f, 3));
+            ITEMS.register("fortune_upgrade", () -> new GardenUpgradeItem(GardenUpgradeType.FORTUNE, 3));
 }

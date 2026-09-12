@@ -1,5 +1,6 @@
 package dev.mikey.botanygardens.upgrade;
 
+import dev.mikey.botanygardens.config.ModConfig;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -35,8 +36,8 @@ public class GardenUpgradeSupport {
     }
 
     /** Fortune Upgrade stacks to 3 in its slot - each stacked copy adds another flat chance of one
-     * bonus harvest roll, capped at 0.45 (3 stacked), matching how PowerPots' own Fortune Upgrade
-     * works (not a per-roll yield multiplier). */
+     * bonus harvest roll, capped at {@link ModConfig#FORTUNE_UPGRADE_MAX_CHANCE} (0.45 = 3 stacked by
+     * default), matching how PowerPots' own Fortune Upgrade works (not a per-roll yield multiplier). */
     public static float getFortuneChance(List<ItemStack> upgrades) {
         float chance = 0f;
         for (final ItemStack stack : upgrades) {
@@ -44,7 +45,7 @@ public class GardenUpgradeSupport {
                 chance += upgradeItem.getModifier() * stack.getCount();
             }
         }
-        return Math.min(chance, 0.45f);
+        return Math.min(chance, ModConfig.FORTUNE_UPGRADE_MAX_CHANCE.get().floatValue());
     }
 
     /** The percent bonus a slot's currently-held upgrade stack is granting, for the GUI's stat line
@@ -55,7 +56,7 @@ public class GardenUpgradeSupport {
             return 0f;
         }
         if (upgradeItem.getType() == GardenUpgradeType.FORTUNE) {
-            return Math.min(upgradeItem.getModifier() * stack.getCount(), 0.45f) * 100f;
+            return Math.min(upgradeItem.getModifier() * stack.getCount(), ModConfig.FORTUNE_UPGRADE_MAX_CHANCE.get().floatValue()) * 100f;
         }
         return (upgradeItem.getModifier() - 1f) * 100f;
     }
