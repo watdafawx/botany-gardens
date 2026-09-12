@@ -409,7 +409,12 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         // tick, all the way to near-0, far faster than the periodic resync from the real (healthy,
         // cable-fed) server value could correct it - so the GUI/Jade display spent most of its time
         // showing that self-inflicted near-empty number instead of the true one.
-        if (!level.isClientSide && BotanyGardens.isPowerPotsLoaded() && PowerPotCellSupport.isPowerPot(cell.potKind)) {
+        //
+        // Deliberate departure from the real PowerPotBlockEntity#tickPot here: it drains FE every tick
+        // regardless of whether the pot has a seed/soil at all (an empty, still-powered Power Pot
+        // burns FE for nothing). A cell with nothing planted has nothing to power, so skip the draw
+        // rather than copy that.
+        if (!level.isClientSide && BotanyGardens.isPowerPotsLoaded() && PowerPotCellSupport.isPowerPot(cell.potKind) && !cell.soil.isEmpty() && !cell.seed.isEmpty()) {
             final int consumed = PowerPotCellSupport.tryConsumeEnergy(owner.energy, cell.potKind, owner.upgrades);
             if (consumed < 0) {
                 // Not enough FE in the shared buffer this tick - mirrors PowerPotBlockEntity#tickPot's own
