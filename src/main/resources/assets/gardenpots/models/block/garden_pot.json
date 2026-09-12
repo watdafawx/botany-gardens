@@ -1,0 +1,7 @@
+{
+  "parent": "botanypots:block/template/pot",
+  "textures": {
+    "material": "minecraft:block/mud_bricks",
+    "material_top": "botanypots:block/mud_bricks_pot_top"
+  }
+}

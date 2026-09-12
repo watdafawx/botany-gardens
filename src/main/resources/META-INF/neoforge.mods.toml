@@ -1,0 +1,77 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "${mod_authors}"
+description = '''
+Houses a 3x3 grid of botany pots behind one glass-covered block, to save world-space. Each cell
+accepts any pot kind you own the block-item for - vanilla Basic/Hopper pots, Botany Pots Tiers'
+Elite/Ultra/Mega pots, or PowerPots' Power Pot - and grows/renders/harvests exactly like the real
+thing. The block exposes one FE port that powers any Power-Pot-kind cells. A second block,
+Dimensional Garden Pot, redirects every hopper-kind cell's harvest straight into a bound Dim
+Storage frequency instead of its own output slots.
+
+Requires Botany Pots and Bookshelf. Botany Pots Tiers, PowerPots, Dimensional Storage, and Jade are
+all optional - only the pot kinds from mods you have installed are selectable, and Jade (if present)
+shows a hover tooltip with growing-cell count and energy.
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "botanypots"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "bookshelf"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "botanypotstiers"
+type = "optional"
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "powerpots"
+type = "optional"
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "dimstorage"
+type = "optional"
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "jade"
+type = "optional"
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "CLIENT"

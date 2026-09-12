@@ -1,0 +1,11 @@
+.gradle/
+build/
+run/
+.idea/
+*.iml
+toolchain/
+build-log.txt
+*.log
+.vscode/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

@@ -1,0 +1,104 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.146'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-neoforge-1.21.1"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    version = neo_version
+
+    runs {
+        client {
+            client()
+            gameDirectory = file('run')
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    // Darkhax's own maven - BotanyPots and its Bookshelf library.
+    maven { url "https://maven.blamejared.com" }
+
+    // Modrinth mirrors every mod hosted there as a Maven repo (group "maven.modrinth", artifact is
+    // the slug, version is the Modrinth *version id*, not the version number). BotanyPotsTiers,
+    // PowerPots, DimStorage and EdivadLib have no maven of their own, so this is the only way to
+    // resolve them without a manual jar. Scoped so it isn't asked to resolve anything else.
+    maven {
+        url "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
+}
+
+dependencies {
+    // Required - the whole addon is built on BotanyPots' recipe/context API.
+    implementation "net.darkhax.botanypots:botanypots-neoforge-1.21.1:${botanypots_version}"
+    implementation "net.darkhax.bookshelf:bookshelf-neoforge-1.21.1:${bookshelf_version}"
+
+    // Optional parent-mod integrations. compileOnly: none of these may leak into the shipped jar's
+    // dependency requirements (see neoforge.mods.toml, which lists them as "optional" by hand) - at
+    // runtime the real mods, if installed, are what's actually loaded.
+    //
+    // This only covers compiling. FML's mod discovery scans run/mods, not the general runtime
+    // classpath, so a real test run with one of these loaded still needs its jar dropped into
+    // run/mods by hand.
+    compileOnly "maven.modrinth:botany-pots-tiers:${botanypotstiers_version}"
+    compileOnly "maven.modrinth:powerpots-unofficial-port:${powerpots_version}"
+    compileOnly "maven.modrinth:dimstorage:${dimstorage_version}"
+    compileOnly "maven.modrinth:edivadlib:${edivadlib_version}"
+    // Jade: discovered via its own @WailaPlugin annotation scan, not FML mod-loading, so no
+    // ModList guard is needed on our side - Jade only instantiates the plugin class if it's present.
+    compileOnly "maven.modrinth:jade:${jade_version}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    def expandProps = [
+            mod_id       : mod_id,
+            mod_name     : mod_name,
+            mod_version  : mod_version,
+            mod_license  : mod_license,
+            mod_authors  : mod_authors,
+            neo_version  : neo_version
+    ]
+
+    inputs.properties(expandProps)
+
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+        expand expandProps
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Specification-Vendor'  : mod_authors,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor' : mod_authors
+        ])
+    }
+}

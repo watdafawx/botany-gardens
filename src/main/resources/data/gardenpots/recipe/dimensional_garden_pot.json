@@ -1,0 +1,18 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "dimstorage"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    { "item": "gardenpots:garden_pot" },
+    { "item": "dimstorage:dim_core" }
+  ],
+  "result": {
+    "id": "gardenpots:dimensional_garden_pot",
+    "count": 1
+  }
+}

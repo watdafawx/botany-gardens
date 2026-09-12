@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "waterlogged=true": { "model": "gardenpots:block/garden_pot" },
+    "waterlogged=false": { "model": "gardenpots:block/garden_pot" }
+  }
+}
