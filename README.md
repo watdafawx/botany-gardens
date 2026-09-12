@@ -57,12 +57,4 @@ client-vs-server desync bug where the block entity's shared ticker ran unguarded
 the client kept re-draining its own unsynced copy of the energy buffer (see `GardenBlockEntity#tickCell`'s
 `!level.isClientSide` guard, added to match what `PowerPotBlockEntity#tickPot` itself does).
 
-Not done yet, worth doing before a real release:
-- **Art.** Block textures are a reused BotanyPots/DimStorage material pair; the GUI background is
-  flat-filled rectangles with a bevel, not a real texture. Both work, neither is final art.
-- No JEI/REI integration for the recipe side (BotanyPots itself has a JEI plugin for its own
-  recipes; this mod's grid GUI doesn't add anything on top of that).
-- A save from before the upgrade-item rework could still have PowerPots' own upgrade items sitting
-  in a Garden Pot's upgrade slots (no longer recognized by `GardenUpgradeSupport.isUpgradeForSlot`,
-  so they'd just sit inert) - harmless on a dev-only save, but worth a one-time cleanup/migration
-  note before a real release.
+Not-done/TODO list is kept locally in `TODO.md` (gitignored).

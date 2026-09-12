@@ -1,6 +1,7 @@
 .gradle/
 build/
 bin/
+TODO.md
 run/
 .idea/
 *.iml
