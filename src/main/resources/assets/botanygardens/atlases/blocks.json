@@ -1,0 +1,8 @@
+{
+  "sources": [
+    { "type": "single", "resource": "botanygardens:item/speed_upgrade_empty" },
+    { "type": "single", "resource": "botanygardens:item/output_upgrade_empty" },
+    { "type": "single", "resource": "botanygardens:item/energy_upgrade_empty" },
+    { "type": "single", "resource": "botanygardens:item/fortune_upgrade_empty" }
+  ]
+}

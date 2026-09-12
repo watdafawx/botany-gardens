@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:redstone" },
+    { "item": "minecraft:bone_meal" },
+    { "item": "minecraft:gold_nugget" }
+  ],
+  "result": {
+    "id": "botanygardens:output_upgrade",
+    "count": 1
+  }
+}

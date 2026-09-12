@@ -1,8 +1,0 @@
-{
-  "sources": [
-    { "type": "single", "resource": "gardenpots:item/speed_upgrade_empty" },
-    { "type": "single", "resource": "gardenpots:item/output_upgrade_empty" },
-    { "type": "single", "resource": "gardenpots:item/energy_upgrade_empty" },
-    { "type": "single", "resource": "gardenpots:item/fortune_upgrade_empty" }
-  ]
-}

@@ -1,4 +1,4 @@
-# Garden Pots
+# Botany Gardens
 
 NeoForge 1.21.1 addon for [BotanyPots](https://github.com/Darkhax-Minecraft/BotanyPots). Adds a
 **Garden Pot**: one glass-covered block housing a 3x3 grid of virtual pots, so 9 crops fit in the
@@ -28,18 +28,18 @@ What's genuinely reusable is the *data-driven* half of the API:
 `net.darkhax.botanypots.common.api.context.BotanyPotContext` is a plain interface (not tied to a real
 block entity), and `Soil`/`Crop` recipes are global datapack content, not tied to any specific pot
 block. So each grid cell gets its own lightweight `BotanyPotContext` implementation
-([`CellContext`](src/main/java/dev/mtop/gardenpots/block/context/CellContext.java)) instead of a real
-block entity, and [`GardenPotCell.tick`](src/main/java/dev/mtop/gardenpots/block/entity/GardenPotBlockEntity.java)
+([`CellContext`](src/main/java/dev/mikey/botanygardens/block/context/CellContext.java)) instead of a real
+block entity, and [`GardenCell.tick`](src/main/java/dev/mikey/botanygardens/block/entity/GardenBlockEntity.java)
 reimplements `BotanyPotBlockEntity#tickPot`'s body per cell.
 
 A pot's *kind* (Basic/Hopper/Elite/Power/...) is resolved off whichever pot **block-item** a player
 drops into a cell's pot-kind slot: `BotanyPotBlock#getGrowthModifier`/`getYieldModifier` are instance
 methods that don't touch any real-world state, so they can be called directly on the registered
 `Block` behind that item with zero placement in the world - see
-[`GardenPotHelpers`](src/main/java/dev/mtop/gardenpots/block/GardenPotHelpers.java). PowerPots is the
+[`GardenHelpers`](src/main/java/dev/mikey/botanygardens/block/GardenHelpers.java). PowerPots is the
 one exception (its tier lives on the block *entity*, not the block, and its own
 `getGrowthModifier` always returns 0); see
-[`compat/powerpots`](src/main/java/dev/mtop/gardenpots/compat/powerpots), which reads the tier index
+[`compat/powerpots`](src/main/java/dev/mikey/botanygardens/compat/powerpots), which reads the tier index
 off the trailing digit of the pot-kind item's own registry path (`power_pot_<N>`) into
 `Config.INSTANCE.TIERS`, exactly the technique `PowerPotBlock#appendHoverText` itself uses - not off
 `BLOCK_ENTITY_DATA`, which only exists after a real placed `PowerPotBlockEntity` is broken and is
@@ -48,8 +48,8 @@ approach silently resolved every fresh Power Pot item to `PotTier.ZERO`).
 
 Upgrades are a separate, always-available system, not PowerPots-specific: 4 shared slots
 (Speed/Output/Energy/Fortune, see
-[`GardenUpgradeItem`](src/main/java/dev/mtop/gardenpots/upgrade/GardenUpgradeItem.java)/
-[`GardenUpgradeSupport`](src/main/java/dev/mtop/gardenpots/upgrade/GardenUpgradeSupport.java)) apply
+[`GardenUpgradeItem`](src/main/java/dev/mikey/botanygardens/upgrade/GardenUpgradeItem.java)/
+[`GardenUpgradeSupport`](src/main/java/dev/mikey/botanygardens/upgrade/GardenUpgradeSupport.java)) apply
 to every cell regardless of pot kind; only Energy's cost reduction actually matters on a
 Power-Pot-kind cell. Fortune stacks to 3 copies for a stacking bonus-roll chance (0.15/copy, capped
 at 0.45), mirroring `PowerPotBlockEntity#getFortuneChance` exactly.
@@ -74,7 +74,7 @@ registration, frequency binding via right-click), Jade integration, loot tables,
 and the mod's own 4-item global upgrade system (Speed/Output/Energy/Fortune, generated icons).
 Playtested extensively in the dev client, not just compiled - including hunting down a real
 client-vs-server desync bug where the block entity's shared ticker ran unguarded on both sides and
-the client kept re-draining its own unsynced copy of the energy buffer (see `GardenPotBlockEntity#tickCell`'s
+the client kept re-draining its own unsynced copy of the energy buffer (see `GardenBlockEntity#tickCell`'s
 `!level.isClientSide` guard, added to match what `PowerPotBlockEntity#tickPot` itself does).
 
 Not done yet, worth doing before a real release:

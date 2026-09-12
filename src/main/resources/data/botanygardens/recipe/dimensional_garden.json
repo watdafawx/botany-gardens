@@ -1,0 +1,18 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "dimstorage"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    { "item": "botanygardens:garden" },
+    { "item": "dimstorage:dim_core" }
+  ],
+  "result": {
+    "id": "botanygardens:dimensional_garden",
+    "count": 1
+  }
+}

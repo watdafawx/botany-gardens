@@ -1,0 +1,7 @@
+{
+  "parent": "botanypots:block/template/pot",
+  "textures": {
+    "material": "dimstorage:block/dimchest_top",
+    "material_top": "botanygardens:block/dim_pot_top"
+  }
+}

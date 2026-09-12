@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "waterlogged=true": { "model": "botanygardens:block/garden" },
+    "waterlogged=false": { "model": "botanygardens:block/garden" }
+  }
+}

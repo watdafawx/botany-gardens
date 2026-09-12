@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:redstone" },
+    { "item": "minecraft:sugar" },
+    { "item": "minecraft:gold_nugget" }
+  ],
+  "result": {
+    "id": "botanygardens:speed_upgrade",
+    "count": 1
+  }
+}
