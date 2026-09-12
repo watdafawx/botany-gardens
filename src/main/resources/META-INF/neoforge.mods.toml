@@ -8,7 +8,7 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "${mod_authors}"
 description = '''
-Houses a 3x3 grid of botany pots behind one glass-covered block, to save world-space. Each cell
+Houses a 3x3 grid of botany pots in one block, to save world-space. Each cell
 accepts any pot kind you own the block-item for - vanilla Basic/Hopper pots, Botany Pots Tiers'
 Elite/Ultra/Mega pots, or PowerPots' Power Pot - and grows/renders/harvests exactly like the real
 thing. The block exposes one FE port that powers any Power-Pot-kind cells. A second block,

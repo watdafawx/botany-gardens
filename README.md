@@ -1,8 +1,8 @@
 # Botany Gardens
 
 NeoForge 1.21.1 addon for [BotanyPots](https://github.com/Darkhax-Minecraft/BotanyPots). Adds a
-**Garden Pot**: one glass-covered block housing a 3x3 grid of virtual pots, so 9 crops fit in the
-footprint of 1 block instead of 9. Each cell accepts any pot-kind item the player owns - vanilla
+**Garden Pot**: one block housing a 3x3 grid of virtual pots, so 9 crops fit in the footprint of 1
+block instead of 9. Each cell accepts any pot-kind item the player owns - vanilla
 Basic/Hopper Pot, [Botany Pots Tiers](https://github.com/starforcraft/Botany-Pots-Tiers)'
 Elite/Ultra/Mega, or [PowerPots](https://github.com/Absenteewings90/PowerPots)' Power Pot - and
 grows/renders/harvests exactly like the real thing. The block exposes one FE port that powers any
