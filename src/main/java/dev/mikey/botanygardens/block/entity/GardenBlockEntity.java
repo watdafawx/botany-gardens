@@ -34,6 +34,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -59,7 +60,7 @@ import java.util.stream.IntStream;
  * can use plain {@code Slot}s: slots {@code 0..35} are the 9 cells' (potKind, soil, seed, tool)
  * quads, slots {@code 36..62} are the shared output bank.
  */
-public class GardenBlockEntity extends BlockEntity implements Container, MenuProvider {
+public class GardenBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
 
     public static final int GRID_SIZE = 9;
     public static final int CLUSTER_SLOTS = 4;
@@ -67,6 +68,10 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
     /** One shared harvest bank for every hopper-kind cell, instead of 9 separate 12-slot bins. */
     public static final int OUTPUT_SLOTS = 27;
     public static final int[] OUTPUT_SLOT_RANGE = IntStream.range(0, OUTPUT_SLOTS).toArray();
+    /** Same slots as {@link #OUTPUT_SLOT_RANGE} but as absolute {@link Container} indices (offset by
+     * {@link #CELL_SLOTS}) - what a hopper/{@link WorldlyContainer} caller needs. A hopper may only
+     * pull from here: it must never yank a garden's seed/soil/pot/tool out from under it. */
+    public static final int[] HOPPER_SLOTS = IntStream.range(CELL_SLOTS, CELL_SLOTS + OUTPUT_SLOTS).toArray();
     /** 4 shared slots (Speed/Output/Energy/Fortune) applying to every cell at once, any pot kind -
      * see {@code dev.mikey.botanygardens.upgrade.GardenUpgradeSupport}, which is where the
      * slot-index-to-upgrade-type mapping lives. Energy only has any effect on Power-Pot-kind cells
@@ -253,6 +258,25 @@ public class GardenBlockEntity extends BlockEntity implements Container, MenuPro
         for (int i = 0; i < CONTAINER_SIZE; i++) {
             this.setItem(i, ItemStack.EMPTY);
         }
+    }
+
+    // -- WorldlyContainer: hoppers/pipes may only ever pull the harvest bank, never the seed/soil/pot/
+    // tool/upgrade slots that make a garden run - see HOPPER_SLOTS.
+
+    @NotNull
+    @Override
+    public int[] getSlotsForFace(@NotNull Direction side) {
+        return HOPPER_SLOTS;
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, @NotNull ItemStack stack, @Nullable Direction direction) {
+        return false;
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int slot, @NotNull ItemStack stack, @NotNull Direction direction) {
+        return slot >= CELL_SLOTS && slot < CELL_SLOTS + OUTPUT_SLOTS;
     }
 
     @NotNull
