@@ -1,0 +1,8 @@
+{
+  "bookshelf:load_conditions": [
+    { "type": "bookshelf:mod_loaded", "values": [ "mysticalovergrowth", "botanypotsmystical" ] },
+    { "type": "bookshelf:item_exists", "values": [ "mysticalagriculture:cupronickel_seeds" ] }
+  ],
+  "type": "botanypotsmystical:mystical_crop",
+  "crop_id": "mysticalovergrowth:cupronickel"
+}
