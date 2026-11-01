@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3
+
+- New mod icon: a 3x3 grid of Botany Pots, based on the Botany Pots logo.
+
 ## 0.5.2
 
 - Added Botany Pots crops for 29 more Mystical Overgrowth seeds (antimony, bauxite, titanium, tungsten, time crystal, spawner, shulker and more).
