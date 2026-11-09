@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.4
+
+- The mod's author is now watdafawx (it was mikey).
+
 ## 0.5.3
 
 - New mod icon: a 3x3 grid of Botany Pots, based on the Botany Pots logo.
